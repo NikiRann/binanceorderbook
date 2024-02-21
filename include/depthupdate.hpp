@@ -23,15 +23,15 @@
 
 using tcp = boost::asio::ip::tcp;
 
-constexpr auto binanceApiHost = "fapi.binance.com";
+constexpr auto binance_api_host = "fapi.binance.com";
 
-class ThreadSafeHashMap {
+class thread_safe_hashmap {
 public:
-    ThreadSafeHashMap(const ThreadSafeHashMap&) = delete;
-    ThreadSafeHashMap& operator=(const ThreadSafeHashMap&) = delete;
+    thread_safe_hashmap(const thread_safe_hashmap&) = delete;
+    thread_safe_hashmap& operator=(const thread_safe_hashmap&) = delete;
 
-    static ThreadSafeHashMap& getInstance() {
-        static ThreadSafeHashMap instance;
+    static thread_safe_hashmap& getInstance() {
+        static thread_safe_hashmap instance;
         return instance;
     }
     void insert(const std::string& key, const uint64_t& value) {
@@ -65,7 +65,7 @@ public:
     }
 
 private:
-    ThreadSafeHashMap() {}
+    thread_safe_hashmap() {}
     mutable std::shared_mutex mutex_;
     std::unordered_map<std::string, uint64_t> hashmap_;
 };

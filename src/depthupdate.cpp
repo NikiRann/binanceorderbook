@@ -12,12 +12,12 @@ void update_depth(std::string const& ticker) {
     tcp::resolver resolver(ioc);
     boost::beast::ssl_stream<boost::beast::tcp_stream> stream(ioc, ctx);
 
-    if(! SSL_set_tlsext_host_name(stream.native_handle(), binanceApiHost)) {
+    if(! SSL_set_tlsext_host_name(stream.native_handle(), binance_api_host)) {
         boost::beast::error_code ec{static_cast<int>(::ERR_get_error()), boost::asio::error::get_ssl_category()};
         throw boost::beast::system_error{ec};
     }
 
-    auto const results = resolver.resolve(binanceApiHost, "443");
+    auto const results = resolver.resolve(binance_api_host, "443");
 
     boost::beast::get_lowest_layer(stream).connect(results);
 
@@ -26,7 +26,7 @@ void update_depth(std::string const& ticker) {
     std::cout << boost::algorithm::to_upper_copy(ticker) << '\n';
 
     boost::beast::http::request<boost::beast::http::string_body> req{boost::beast::http::verb::get, "/fapi/v1/depth?symbol=" + boost::algorithm::to_upper_copy(ticker) + "&limit=1000", 11};
-    req.set(boost::beast::http::field::host, binanceApiHost);
+    req.set(boost::beast::http::field::host, binance_api_host);
     req.set(boost::beast::http::field::user_agent, BOOST_BEAST_VERSION_STRING);
 
     boost::beast::http::write(stream, req);
@@ -42,8 +42,8 @@ void update_depth(std::string const& ticker) {
         std::cerr << "Error during read: " << ec.message() << std::endl;
     }
     
-    boost::json::value depthInfo = boost::json::parse(res.body());
+    boost::json::value depth_info = boost::json::parse(res.body());
 
-    auto& depth_info_by_ticker = ThreadSafeHashMap::getInstance();
-    depth_info_by_ticker.insert(ticker, (uint64_t) depthInfo.at("lastUpdateId").as_int64());
+    auto& depth_info_by_ticker = thread_safe_hashmap::getInstance();
+    depth_info_by_ticker.insert(ticker, (uint64_t) depth_info.at("lastUpdateId").as_int64());
 }

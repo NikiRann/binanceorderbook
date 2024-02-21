@@ -27,7 +27,7 @@ on_error(boost::beast::error_code ec, char const* what);
 std::vector<boost::json::value> 
 parse_multiple_json_objects(const std::string& input);
 
-class BinanceWssSession : public std::enable_shared_from_this<BinanceWssSession>
+class binance_wss_session : public std::enable_shared_from_this<binance_wss_session>
 {
     tcp::resolver resolver_;
     
@@ -40,7 +40,7 @@ class BinanceWssSession : public std::enable_shared_from_this<BinanceWssSession>
     
     std::vector<std::string> const* tickers;
 public:
-    explicit BinanceWssSession(boost::asio::io_context& ioc, boost::asio::ssl::context& ctx)
+    explicit binance_wss_session(boost::asio::io_context& ioc, boost::asio::ssl::context& ctx)
         : resolver_(boost::asio::make_strand(ioc))
         , ws_(boost::asio::make_strand(ioc), ctx)
     {
@@ -65,5 +65,5 @@ public:
     
     void parse_diff();
     
-    ~BinanceWssSession();
+    ~binance_wss_session();
 };

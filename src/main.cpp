@@ -9,7 +9,7 @@ const std::vector<std::string> TICKERS {"btcusdt"};
 
 int main(int argc, char** argv)
 {
-    auto& depth_info_by_ticker = ThreadSafeHashMap::getInstance();
+    auto& depth_info_by_ticker = thread_safe_hashmap::getInstance();
 
     std::vector<std::thread> threads;
 
@@ -27,7 +27,7 @@ int main(int argc, char** argv)
     
     boost::certify::enable_native_https_server_verification(ctx);
     
-    std::make_shared<BinanceWssSession>(ioc, ctx)->run(websocket_host, websocket_port, TICKERS);
+    std::make_shared<binance_wss_session>(ioc, ctx)->run(websocket_host, websocket_port, TICKERS);
     
     ioc.run(); 
 

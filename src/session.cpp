@@ -5,7 +5,7 @@ on_error(boost::beast::error_code ec, char const* what) {
     std::cerr << what << ": " << ec.message() << "\n";
 }
 
-void BinanceWssSession::run(char const* host,
+void binance_wss_session::run(char const* host,
                   char const* port,
                   std::vector<std::string> const& tickers) {    
     this->host_ = host;
@@ -15,11 +15,11 @@ void BinanceWssSession::run(char const* host,
         host,
         port,
         boost::beast::bind_front_handler(
-            &BinanceWssSession::on_resolve,
+            &binance_wss_session::on_resolve,
             shared_from_this()));
 }
 
-void BinanceWssSession::on_resolve(boost::beast::error_code ec,
+void binance_wss_session::on_resolve(boost::beast::error_code ec,
                          tcp::resolver::results_type results) {
     if(ec)
         return on_error(ec, "resolve");
@@ -29,11 +29,11 @@ void BinanceWssSession::on_resolve(boost::beast::error_code ec,
     boost::beast::get_lowest_layer(ws_).async_connect(
         results,
         boost::beast::bind_front_handler(
-            &BinanceWssSession::on_connect,
+            &binance_wss_session::on_connect,
             shared_from_this()));
 }
 
-void BinanceWssSession::on_connect(boost::beast::error_code ec, 
+void binance_wss_session::on_connect(boost::beast::error_code ec, 
                          tcp::resolver::results_type::endpoint_type ep) {
     if(ec)
         return on_error(ec, "connect");
@@ -54,11 +54,11 @@ void BinanceWssSession::on_connect(boost::beast::error_code ec,
     ws_.next_layer().async_handshake(
         boost::asio::ssl::stream_base::client,
         boost::beast::bind_front_handler(
-            &BinanceWssSession::on_ssl_handshake,
+            &binance_wss_session::on_ssl_handshake,
             shared_from_this()));
 }
 
-void BinanceWssSession::on_ssl_handshake(boost::beast::error_code ec) {
+void binance_wss_session::on_ssl_handshake(boost::beast::error_code ec) {
     if(ec)
         return on_error(ec, "ssl_handshake");
 
@@ -86,22 +86,22 @@ void BinanceWssSession::on_ssl_handshake(boost::beast::error_code ec) {
 
     ws_.async_handshake(host_, target,
         boost::beast::bind_front_handler(
-            &BinanceWssSession::on_handshake,
+            &binance_wss_session::on_handshake,
             shared_from_this()));
 }
 
-void BinanceWssSession::on_handshake(boost::beast::error_code ec) {
+void binance_wss_session::on_handshake(boost::beast::error_code ec) {
     if(ec)
         return on_error(ec, "handshake");
 
     ws_.async_read(
         buffer_,
         boost::beast::bind_front_handler(
-            &BinanceWssSession::on_read,
+            &binance_wss_session::on_read,
             shared_from_this()));
 }
 
-void BinanceWssSession::on_read(boost::beast::error_code ec,
+void binance_wss_session::on_read(boost::beast::error_code ec,
                       std::size_t bytes_transferred) {
     boost::ignore_unused(bytes_transferred);
 
@@ -114,29 +114,29 @@ void BinanceWssSession::on_read(boost::beast::error_code ec,
     ws_.async_read(
         buffer_,
         boost::beast::bind_front_handler(
-            &BinanceWssSession::on_read,
+            &binance_wss_session::on_read,
             shared_from_this()));
 }
 
 // Helper function to find JSON objects in one string and parse them
 std::vector<boost::json::value> parse_multiple_json_objects(const std::string& input) {
-    std::vector<boost::json::value> jsonObjects;
-    std::size_t startPos = 0;
-    std::size_t openBrackets = 0;
+    std::vector<boost::json::value> json_objects;
+    std::size_t start_pos = 0;
+    std::size_t open_brackets = 0;
 
     try {
         for (std::size_t i = 0; i < input.length(); ++i) {
             if (input[i] == '{') {
-                if (openBrackets == 0) {
-                    startPos = i;
+                if (open_brackets == 0) {
+                    start_pos = i;
                 }
-                ++openBrackets;
+                ++open_brackets;
             } else if (input[i] == '}') {
-                --openBrackets;
-                if (openBrackets == 0 && startPos != std::string::npos) {
-                    std::string jsonObjectStr = input.substr(startPos, i - startPos + 1);
-                    jsonObjects.push_back(boost::json::parse(jsonObjectStr));
-                    startPos = std::string::npos;
+                --open_brackets;
+                if (open_brackets == 0 && start_pos != std::string::npos) {
+                    std::string json_object_str = input.substr(start_pos, i - start_pos + 1);
+                    json_objects.push_back(boost::json::parse(json_object_str));
+                    start_pos = std::string::npos;
                 }
             }
         }
@@ -144,10 +144,10 @@ std::vector<boost::json::value> parse_multiple_json_objects(const std::string& i
         std::cerr << "Exception caught while parsing JSON: " << e.what() << '\n';
     }
 
-    return jsonObjects;
+    return json_objects;
 }
 
-void BinanceWssSession::parse_diff() {
+void binance_wss_session::parse_diff() {
     std::string input = boost::beast::buffers_to_string(buffer_.data());
     auto jsonObjects = parse_multiple_json_objects(input);
 
@@ -161,7 +161,7 @@ void BinanceWssSession::parse_diff() {
             auto previousUpdateId = data.at("pu").as_int64();
 
             boost::algorithm::to_lower(symbol);
-            auto& depth_info_by_ticker = ThreadSafeHashMap::getInstance();
+            auto& depth_info_by_ticker = thread_safe_hashmap::getInstance();
 
             uint64_t current_depth_info;
             depth_info_by_ticker.get(symbol.c_str(), current_depth_info);
@@ -179,6 +179,6 @@ void BinanceWssSession::parse_diff() {
     }
 }
 
-BinanceWssSession::~BinanceWssSession() {
+binance_wss_session::~binance_wss_session() {
     ws_.close(boost::beast::websocket::close_code::normal);
 }
