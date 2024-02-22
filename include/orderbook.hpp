@@ -1,31 +1,29 @@
 #pragma once 
 
 #include <boost/json.hpp>
-#include <queue>
 
-using order = std::pair<double, double>;
+#include <map>
+#include <iostream>
 
-auto descending_compare = [](const order& a, const order& b) {
-    return a.first < b.first;
-};
-
-auto ascending_compare = [](const order& a, const order& b) {
-    return a.first < b.first;
-};
+#include "depthupdate.hpp"
 
 class order_book {
     uint64_t last_update;
 
-    const std::string_view ticker;
+    std::string_view const ticker;
 
-    std::priority_queue<order, std::vector<order>, decltype(descending_compare)> buy_orders;
+    // Quick lookup for best element using std::map
+    // std::map uses red-black tree to keep the elements sorted
+    std::map<double, double, std::greater<double>> buy_orders; 
+    std::map<double, double, std::less<double>>sell_orders;
 
-    std::priority_queue<order, std::vector<order>, decltype(ascending_compare)> sell_orders;
-
-    std::unordered_map<double, bool> buy_duplicates;
-    std::unordered_map<double, bool> sell_duplicates;
+    // Quick lookup for duplicates and/or price using a hashmap
+    std::unordered_map<double, double> buy_quick; 
+    std::unordered_map<double, double> sell_quick;
 public:
-    void update(boost::json::value const& newUpdate);
+    order_book(std::string_view const& t);
+
+    void update(boost::json::value& newUpdate);
 
     double get_best_buy() const;
 

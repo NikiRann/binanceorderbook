@@ -25,7 +25,7 @@ void
 on_error(boost::beast::error_code ec, char const* what);
 
 std::vector<boost::json::value> 
-parse_multiple_json_objects(const std::string& input);
+parse_multiple_json_objects(std::string const& input);
 
 class binance_wss_session : public std::enable_shared_from_this<binance_wss_session>
 {

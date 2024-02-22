@@ -78,7 +78,7 @@ void binance_wss_session::on_ssl_handshake(boost::beast::error_code ec) {
 
     std::string target = "/stream?streams=";
     
-    for (const auto& t : *tickers) {
+    for (auto const& t : *tickers) {
         target.append(t + "@depth@100ms/");
     }
     
@@ -119,7 +119,7 @@ void binance_wss_session::on_read(boost::beast::error_code ec,
 }
 
 // Helper function to find JSON objects in one string and parse them
-std::vector<boost::json::value> parse_multiple_json_objects(const std::string& input) {
+std::vector<boost::json::value> parse_multiple_json_objects(std::string const& input) {
     std::vector<boost::json::value> json_objects;
     std::size_t start_pos = 0;
     std::size_t open_brackets = 0;
@@ -149,16 +149,13 @@ std::vector<boost::json::value> parse_multiple_json_objects(const std::string& i
 
 void binance_wss_session::parse_diff() {
     std::string input = boost::beast::buffers_to_string(buffer_.data());
-    auto jsonObjects = parse_multiple_json_objects(input);
+    auto json_objects = parse_multiple_json_objects(input);
 
-    for (const auto& orderBookUpdate : jsonObjects) {
+    for (auto const& orderbook_update : json_objects) {
         try {
-            auto& data = orderBookUpdate.as_object().at("data").as_object();
+            auto& data = orderbook_update.as_object().at("data").as_object();
             auto symbol = data.at("s").as_string();
-            auto event = data.at("e").as_string(); 
-            auto updateId = data.at("u").as_int64();
-            auto firstUpdateId = data.at("U").as_int64();
-            auto previousUpdateId = data.at("pu").as_int64();
+            auto update_id = data.at("u").as_int64();
 
             boost::algorithm::to_lower(symbol);
             auto& depth_info_by_ticker = thread_safe_hashmap::getInstance();
@@ -166,12 +163,10 @@ void binance_wss_session::parse_diff() {
             uint64_t current_depth_info;
             depth_info_by_ticker.get(symbol.c_str(), current_depth_info);
 
-            if ((uint64_t)updateId < current_depth_info) {
+            if ((uint64_t)update_id < current_depth_info) {
                 // std::cout << "DROPPED" << updateId << " " << current_depth_info << "\n";
-                std::cout << "SUCCESS " <<  event << " " <<symbol << " " << updateId << " " << previousUpdateId << " " << current_depth_info << " " << firstUpdateId << "\n";
-            
             } else {
-                std::cout << "SUCCESS " <<  event << " " <<symbol << " " << updateId << " " << previousUpdateId << " " << current_depth_info << " " << firstUpdateId << "\n";
+                // std::cout << "SUCCESS " <<  event << " " <<symbol << " " << updateId << " " << previousUpdateId << " " << current_depth_info << " " << firstUpdateId << "\n";
             }
         } catch (const std::exception& e) {
             std::cerr << "Exception caught while processing JSON object: " << e.what() << '\n';

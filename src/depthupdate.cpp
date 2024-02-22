@@ -23,8 +23,6 @@ void update_depth(std::string const& ticker) {
 
     stream.handshake(boost::asio::ssl::stream_base::client);
 
-    std::cout << boost::algorithm::to_upper_copy(ticker) << '\n';
-
     boost::beast::http::request<boost::beast::http::string_body> req{boost::beast::http::verb::get, "/fapi/v1/depth?symbol=" + boost::algorithm::to_upper_copy(ticker) + "&limit=1000", 11};
     req.set(boost::beast::http::field::host, binance_api_host);
     req.set(boost::beast::http::field::user_agent, BOOST_BEAST_VERSION_STRING);

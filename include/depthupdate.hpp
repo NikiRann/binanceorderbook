@@ -27,19 +27,19 @@ constexpr auto binance_api_host = "fapi.binance.com";
 
 class thread_safe_hashmap {
 public:
-    thread_safe_hashmap(const thread_safe_hashmap&) = delete;
-    thread_safe_hashmap& operator=(const thread_safe_hashmap&) = delete;
+    thread_safe_hashmap(thread_safe_hashmap const&) = delete;
+    thread_safe_hashmap& operator=(thread_safe_hashmap const&) = delete;
 
     static thread_safe_hashmap& getInstance() {
         static thread_safe_hashmap instance;
         return instance;
     }
-    void insert(const std::string& key, const uint64_t& value) {
+    void insert(std::string const& key, uint64_t const& value) {
         std::unique_lock<std::shared_mutex> lock(mutex_);
         hashmap_[key] = value;
     }
 
-    bool get(const std::string& key, uint64_t& value) const {
+    bool get(std::string const& key, uint64_t& value) const {
         std::shared_lock<std::shared_mutex> lock(mutex_);
         auto it = hashmap_.find(key);
         if (it == hashmap_.end()) {
@@ -49,7 +49,7 @@ public:
         return true;
     }
 
-    bool remove(const std::string& key) {
+    bool remove(std::string const& key) {
         std::unique_lock<std::shared_mutex> lock(mutex_);
         auto it = hashmap_.find(key);
         if (it == hashmap_.end()) {
@@ -59,7 +59,7 @@ public:
         return true;
     }
 
-    bool contains(const std::string& key) const {
+    bool contains(std::string const& key) const {
         std::shared_lock<std::shared_mutex> lock(mutex_);
         return hashmap_.find(key) != hashmap_.end();
     }
