@@ -18,6 +18,7 @@
 #include <string>
 
 #include "../include/depthupdate.hpp"
+#include "../include/orderbook.hpp"
 
 using tcp = boost::asio::ip::tcp;
 
@@ -26,6 +27,8 @@ on_error(boost::beast::error_code ec, char const* what);
 
 std::vector<boost::json::value> 
 parse_multiple_json_objects(std::string const& input);
+
+static std::unordered_map<std::string, order_book> order_book_by_ticker; 
 
 class binance_wss_session : public std::enable_shared_from_this<binance_wss_session>
 {

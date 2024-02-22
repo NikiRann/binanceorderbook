@@ -80,8 +80,9 @@ void binance_wss_session::on_ssl_handshake(boost::beast::error_code ec) {
     
     for (auto const& t : *tickers) {
         target.append(t + "@depth@100ms/");
+        order_book_by_ticker.insert({t, order_book(t)});
     }
-    
+
     target.pop_back();
 
     ws_.async_handshake(host_, target,
@@ -153,20 +154,19 @@ void binance_wss_session::parse_diff() {
 
     for (auto const& orderbook_update : json_objects) {
         try {
-            auto& data = orderbook_update.as_object().at("data").as_object();
+            auto const& data = orderbook_update.as_object().at("data").as_object();
             auto symbol = data.at("s").as_string();
             auto update_id = data.at("u").as_int64();
 
             boost::algorithm::to_lower(symbol);
             auto& depth_info_by_ticker = thread_safe_hashmap::getInstance();
 
-            uint64_t current_depth_info;
+            uint64_t current_depth_info = std::numeric_limits<uint64_t>::max();
             depth_info_by_ticker.get(symbol.c_str(), current_depth_info);
 
-            if ((uint64_t)update_id < current_depth_info) {
-                // std::cout << "DROPPED" << updateId << " " << current_depth_info << "\n";
-            } else {
+            if ((uint64_t)update_id >= current_depth_info) {
                 // std::cout << "SUCCESS " <<  event << " " <<symbol << " " << updateId << " " << previousUpdateId << " " << current_depth_info << " " << firstUpdateId << "\n";
+                order_book_by_ticker.at(symbol.c_str()).update(data);
             }
         } catch (const std::exception& e) {
             std::cerr << "Exception caught while processing JSON object: " << e.what() << '\n';

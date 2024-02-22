@@ -4,8 +4,8 @@
 constexpr auto websocket_host = "fstream.binance.com";
 constexpr auto websocket_port = "443";
 
-// const std::vector<std::string> TICKERS {"btcusdt", "ethusdt"};
-const std::vector<std::string> TICKERS {"btcusdt"};
+const std::vector<std::string> TICKERS {"btcusdt", "ethusdt"};
+// const std::vector<std::string> TICKERS {"btcusdt"};
 
 int main(int argc, char** argv)
 {
