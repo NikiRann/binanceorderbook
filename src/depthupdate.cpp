@@ -42,6 +42,6 @@ void update_depth(std::string const& ticker) {
     
     boost::json::value depth_info = boost::json::parse(res.body());
 
-    auto& depth_info_by_ticker = thread_safe_hashmap::getInstance();
+    auto& depth_info_by_ticker = thread_safe_hashmap<std::string, uint64_t>::getInstance();
     depth_info_by_ticker.insert(ticker, (uint64_t) depth_info.at("lastUpdateId").as_int64());
 }

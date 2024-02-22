@@ -159,13 +159,12 @@ void binance_wss_session::parse_diff() {
             auto update_id = data.at("u").as_int64();
 
             boost::algorithm::to_lower(symbol);
-            auto& depth_info_by_ticker = thread_safe_hashmap::getInstance();
+            auto& depth_info_by_ticker = thread_safe_hashmap<std::string, uint64_t>::getInstance();
 
             uint64_t current_depth_info = std::numeric_limits<uint64_t>::max();
             depth_info_by_ticker.get(symbol.c_str(), current_depth_info);
 
             if ((uint64_t)update_id >= current_depth_info) {
-                // std::cout << "SUCCESS " <<  event << " " <<symbol << " " << updateId << " " << previousUpdateId << " " << current_depth_info << " " << firstUpdateId << "\n";
                 order_book_by_ticker.at(symbol.c_str()).update(data);
             }
         } catch (const std::exception& e) {

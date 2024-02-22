@@ -25,6 +25,12 @@ using tcp = boost::asio::ip::tcp;
 
 constexpr auto binance_api_host = "fapi.binance.com";
 
+struct price_info {
+    long double buy;
+    long double sell;
+};
+
+template<typename KeyType, typename ValueType>
 class thread_safe_hashmap {
 public:
     thread_safe_hashmap(thread_safe_hashmap const&) = delete;
@@ -34,12 +40,13 @@ public:
         static thread_safe_hashmap instance;
         return instance;
     }
-    void insert(std::string const& key, uint64_t const& value) {
+
+    void insert(KeyType const& key, ValueType const& value) {
         std::unique_lock<std::shared_mutex> lock(mutex_);
         hashmap_[key] = value;
     }
 
-    bool get(std::string const& key, uint64_t& value) const {
+    bool get(KeyType const& key, ValueType& value) const {
         std::shared_lock<std::shared_mutex> lock(mutex_);
         auto it = hashmap_.find(key);
         if (it == hashmap_.end()) {
@@ -49,7 +56,7 @@ public:
         return true;
     }
 
-    bool remove(std::string const& key) {
+    bool remove(KeyType const& key) {
         std::unique_lock<std::shared_mutex> lock(mutex_);
         auto it = hashmap_.find(key);
         if (it == hashmap_.end()) {
@@ -59,7 +66,7 @@ public:
         return true;
     }
 
-    bool contains(std::string const& key) const {
+    bool contains(KeyType const& key) const {
         std::shared_lock<std::shared_mutex> lock(mutex_);
         return hashmap_.find(key) != hashmap_.end();
     }
@@ -67,7 +74,7 @@ public:
 private:
     thread_safe_hashmap() {}
     mutable std::shared_mutex mutex_;
-    std::unordered_map<std::string, uint64_t> hashmap_;
+    std::unordered_map<KeyType, ValueType> hashmap_;
 };
 
 void update_depth(std::string const& ticker);

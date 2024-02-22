@@ -9,7 +9,7 @@ void order_book::update(boost::json::object const& new_update) {
     
     if ((uint64_t) previous_update_id != last_update && last_update != 0) {
         // Reset, data loss and mismatched updates
-        auto& depth_info_by_ticker = thread_safe_hashmap::getInstance();
+        auto& depth_info_by_ticker = thread_safe_hashmap<std::string, uint64_t>::getInstance();
         depth_info_by_ticker.insert(std::string(ticker), std::numeric_limits<uint64_t>::max());
         
         last_update = 0; // Not initialized
@@ -31,8 +31,6 @@ void order_book::update(boost::json::object const& new_update) {
         // Handle buy changes
         for (auto& buy_order : buys) {
             boost::json::array buy_details = buy_order.as_array();
-            // std::cout << buy_details << "\n";
-            // std::cout << "BUY Price: " << buy_details[0].as_string() << ", Quantity: " << buy_details[1].as_string() << std::endl;
             
             long double buy_price = std::stold(buy_details[0].as_string().c_str()); 
             long double buy_quantity = std::stold(buy_details[1].as_string().c_str()); 
@@ -56,7 +54,6 @@ void order_book::update(boost::json::object const& new_update) {
         // Handle sales changes
         for (auto& sell_order : sells) {
             boost::json::array sell_details = sell_order.as_array();
-            // std::cout << "SELL Price: " << sell_details[0].as_string() << ", Quantity: " << sell_details[1].as_string() << std::endl;
             
             long double sell_price = std::stold(sell_details[0].as_string().c_str()); 
             long double sell_quantity = std::stold(sell_details[1].as_string().c_str()); 
@@ -76,8 +73,36 @@ void order_book::update(boost::json::object const& new_update) {
                 }
             }
         }
+
+        auto& price_info_by_ticker = thread_safe_hashmap<std::string, price_info>::getInstance();
+
+        price_info to_add {get_best_buy(), get_best_sell()};
         
-        std::cout << ticker << "|" << get_best_buy() << "|" << get_best_sell() << "\n";
+        price_info_by_ticker.insert(std::string(ticker), to_add);
+        
+        // Output the live price after the update
+        std::cout << ">> BUY 1 " << ticker << ": " << std::setprecision(2) << std::fixed << get_best_buy() << 
+                     " | SELL 1 " << ticker  << ": " << std::setprecision(2) << std::fixed << get_best_sell() << "\n";
+
+        long double level_10_buy = 0;
+
+        long double level_10_sell = 0;
+
+        auto buy_it = buy_orders.begin();
+        auto sell_it = sell_orders.begin();
+
+        for (int i = 0; i < 10; ++i) {
+            buy_it++;
+            sell_it++;
+        }
+
+        if (buy_it != buy_orders.end() && sell_it != sell_orders.end()) {
+            level_10_buy = buy_it->first;
+            level_10_sell = sell_it->first;
+        }
+
+        std::cout << ">> " << ticker << " " << std::setprecision(2) <<
+                     std::fixed << level_10_sell - level_10_buy << "\n";
     }
 }
 

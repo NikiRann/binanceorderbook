@@ -4,6 +4,7 @@
 
 #include <map>
 #include <iostream>
+#include <iomanip>
 
 #include "depthupdate.hpp"
 
