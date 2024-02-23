@@ -15,7 +15,7 @@ Using libssl, some help from boost and the requirements from Binance for maintin
 
 # Orderbook
 
-The data strucure in which we store our orderbook is crucal to the performance of this task. In this implementation the orderbook consists of two key data structures. I use an **Red-Black tree** with std::map to ensure constant lookup **O(1)** of the highest buy order and the lowest sell order. The first tree is descending and the second ascending. To insert and remove from the tree the time complexity is **O(logN)**. But this is not enough because we are constantly aggregating upgrades and thus looking for our buy and sell orders to be unique. I achived this by including two Hashmaps with keys equal to the price of the corresponding bid (1st hashmap) or ask (2nd hashmap). This way the check if a price exists is decreased from **O(logN)** to **O(1)**.
+The data strucure in which we store our orderbook is crucial to the performance of this task. In this implementation the orderbook consists of two key data structures. I use an **Red-Black tree** with std::map to ensure constant lookup **O(1)** of the highest buy order and the lowest sell order. The first tree is descending and the second ascending. To insert and remove from the tree the time complexity is **O(logN)**. But this is not enough because we are constantly aggregating upgrades and thus looking for our buy and sell orders to be unique. I achived this by including two Hashmaps with keys equal to the price of the corresponding bid (1st hashmap) or ask (2nd hashmap). This way the check if a price exists is decreased from **O(logN)** to **O(1)**.
 
 ```c++
 class order_book {

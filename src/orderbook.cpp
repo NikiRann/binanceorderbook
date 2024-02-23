@@ -81,8 +81,8 @@ void order_book::update(boost::json::object const& new_update) {
         price_info_by_ticker.insert(std::string(ticker), to_add);
         
         // Output the live price after the update
-        std::cout << ">> BUY 1 " << ticker << ": " << std::setprecision(2) << std::fixed << get_best_buy() << 
-                     " | SELL 1 " << ticker  << ": " << std::setprecision(2) << std::fixed << get_best_sell() << "\n";
+        std::cout << ">> BUY 1 " << ticker << ": " << get_best_buy() << 
+                     " | SELL 1 " << ticker  << ": " << get_best_sell() << "\n";
 
         long double level_10_buy = 0;
 
@@ -101,8 +101,7 @@ void order_book::update(boost::json::object const& new_update) {
             level_10_sell = sell_it->first;
         }
 
-        std::cout << ">> " << ticker << " " << std::setprecision(2) <<
-                     std::fixed << level_10_sell - level_10_buy << "\n";
+        std::cout << ">> " << ticker << " " <<  level_10_sell - level_10_buy << "\n";
     }
 }
 
