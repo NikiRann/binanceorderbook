@@ -65,3 +65,65 @@ Both are being calculated **O(1)** for every ticker's midpoint price. This is do
 
 **libssl-dev** Used by boost for ssl interfaces
 
+# Local build
+
+After installing the above libriaries and replacing the paths in the **Makefile** with your installation paths you can just run in the root dir:
+
+```bash
+make
+./binance btcusdt ethusdt
+``` 
+
+# Docker
+
+A docker image could be built from the solution an be ran with the corresponding tickers you want as cli arguments.
+
+```bash
+docker build -t binance-orderbook-app .
+docker run --name my-binance-orderbook-app binance-orderbook-app btcusdt ethusdt 
+```
+
+# Output
+
+Please be aware that the 100ms updates produce output to the console extremly fast, especially when getting updates for two or more tickers. Running localy produces dynamic fast output. Running the docker container buffers some of the output and it is comming in bigger chunks due to I/O abstractions. For a more detailed view I suggest redirecting the output into a file and selecting only one ticker for the ease of debugging:
+
+```bash
+docker run --name new-binance-orderbook-app binance-orderbook-app > output.txt
+```
+
+Or
+
+```bash
+./binance btcusdt > output.txt
+```
+
+An example output looks like this:
+```
+>> btcusdt SMA: 50956.65, EMA: 50956.65
+>> BUY 1 btcusdt: 50956.60 | SELL 1 btcusdt: 50956.70
+>> btcusdt 3.80
+>> BUY 1 btcusdt: 50956.60 | SELL 1 btcusdt: 50956.70
+>> btcusdt 3.80
+>> BUY 1 btcusdt: 50956.60 | SELL 1 btcusdt: 50956.70
+>> btcusdt 3.80
+>> BUY 1 btcusdt: 50956.60 | SELL 1 btcusdt: 50956.70
+>> btcusdt 4.30
+>> BUY 1 btcusdt: 50956.60 | SELL 1 btcusdt: 50956.70
+>> btcusdt 4.70
+>> BUY 1 btcusdt: 50956.60 | SELL 1 btcusdt: 50956.70
+>> btcusdt 4.80
+>> BUY 1 btcusdt: 50956.60 | SELL 1 btcusdt: 50956.70
+>> btcusdt 4.10
+>> BUY 1 btcusdt: 50956.60 | SELL 1 btcusdt: 50956.70
+>> btcusdt 4.70
+>> BUY 1 btcusdt: 50956.60 | SELL 1 btcusdt: 50956.70
+>> btcusdt 4.10
+>> BUY 1 btcusdt: 50956.60 | SELL 1 btcusdt: 50956.70
+>> btcusdt 3.90
+>> btcusdt SMA: 50956.65, EMA: 50956.65
+>> BUY 1 btcusdt: 50956.60 | SELL 1 btcusdt: 50956.70
+>> btcusdt 4.20
+```
+
+Every 100 ms we get an update to the standard output for the best bid/ask for every ticker and the corresponding spread.
+Every 1 second we get and update for the SMA and EMA for each symbol.
