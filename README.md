@@ -67,7 +67,7 @@ Both are being calculated **O(1)** for every ticker's midpoint price. This is do
 
 # Local build
 
-After installing the above libriaries and replacing the paths in the **Makefile** with your installation paths you can just run in the root dir:
+After installing the above libriaries (boost, boost::certify, libssl-dev) and replacing the paths in the **Makefile** with your installation paths you can just run in the root dir:
 
 ```bash
 make
@@ -83,18 +83,21 @@ docker build -t binance-orderbook-app .
 docker run --name my-binance-orderbook-app binance-orderbook-app btcusdt ethusdt 
 ```
 
+The docker image can be found on:
+https://hub.docker.com/repository/docker/rnikolay/binance-orderbook-app/
+
 # Output
 
-Please be aware that the 100ms updates produce output to the console extremly fast, especially when getting updates for two or more tickers. Running localy produces dynamic fast output. Running the docker container buffers some of the output and it is comming in bigger chunks due to I/O abstractions. For a more detailed view I suggest redirecting the output into a file and selecting only one ticker for the ease of debugging:
+Please be aware that the 100ms updates produce output to the console extremly fast, especially when getting updates for two or more tickers. Running localy produces dynamic fast output with no problems, but running the docker container buffers some of the output and it is comming in bigger chunks due to I/O abstractions caused by docker. It is possible for a more detailed view to redirect the output into a file and selecting only one ticker for the ease of debugging:
 
 ```bash
-docker run --name new-binance-orderbook-app binance-orderbook-app > output.txt
+docker run --name new-binance-orderbook-app binance-orderbook-app
 ```
 
 Or
 
 ```bash
-./binance btcusdt > output.txt
+./binance btcusdt
 ```
 
 An example output looks like this:
@@ -127,3 +130,7 @@ An example output looks like this:
 
 Every 100 ms we get an update to the standard output for the best bid/ask for every ticker and the corresponding spread.
 Every 1 second we get and update for the SMA and EMA for each symbol.
+
+# Conclusion
+
+I hope I have covered most of the functionallity in this README, but if any questons come up please feel free to email or call me. 
