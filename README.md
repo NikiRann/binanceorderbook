@@ -1,3 +1,6 @@
+> [!NOTE]
+> This was an interview task which was done in the span of 3 days
+
 # Task
 
 We are looking to get the latest Market Data (in this case Orderbook Data - how much
